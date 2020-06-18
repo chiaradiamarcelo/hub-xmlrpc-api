@@ -1,4 +1,4 @@
-name: Hub
+name: Release
 on:
   push:
     tags:
@@ -8,22 +8,22 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      GOPATH: ${{ github.workspace }}
+      GO111MODULE: off
     steps:
-
-    - name: Set up Go 1.13
-      uses: actions/setup-go@v1
+    - name: Install Go
+      uses: actions/setup-go@v2
       with:
-        go-version: 1.13
-      id: go
-    
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v1
-    - name: Ge the project on GOPATH
-      run: go get -u github.com/uyuni-project/hub-xmlrpc-api
+        go-version: 1.12.x
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        path: ./src/github.com/${{ github.repository }}
     - name: Build
-      run: go build hub_api_gateway.go
+      run: go build
     - name: Package
-      run:  tar cvzf hub-api-linux-amd64.tar.gz hub_api_gateway
+      run:  tar cvzf hub-xmlrpc-api-linux-amd64.tar.gz hub-xmlrpc-api
     - name: Create a Release
       uses: actions/create-release@v1
       id: create_release
@@ -40,6 +40,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: hub-api-linux-amd64.tar.gz
-          asset_name: hub-api-linux-amd64.tar.gz
+          asset_path: hub-xmlrpc-api-linux-amd64.tar.gz
+          asset_name: hub-xmlrpc-api-linux-amd64.tar.gz
           asset_content_type: application/zip    
